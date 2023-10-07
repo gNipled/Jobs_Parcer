@@ -1,10 +1,14 @@
+import json
+
 import requests
 import os
-import json
+from datetime import date
 from abc import ABC, abstractmethod
 
 
 SUPERJOB_TOKEN = os.getenv('API_SuperJob')
+API_KEY = os.getenv('EXCHANGE_RATE_API_KEY')
+CURRENCY_RATES_FILE = 'currency_rates.json'
 
 
 class AbstractAPI(ABC):
@@ -77,3 +81,41 @@ class SuperJobAPI(AbstractAPI):
         # return response.json()
         return [[x['profession'], x['link'], x['place_of_work']['title'], x['type_of_work']['title'],
                  x['payment_from'], x['payment_to'], 'RUR'] for x in response.json()['objects']]
+
+
+class CurrencyRateAPI:
+    """Class to get currency exchange rate"""
+    def __init__(self, currency: str):
+        self.currency = currency
+        self.rate = self.get_rate()
+
+    def __str__(self):
+        return f'{self.currency} rate to RUB is {self.rate}'
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.currency}, {self.rate})"
+
+    @classmethod
+    def get_currency_rate(cls):
+        url = f"https://api.apilayer.com/exchangerates_data/latest"
+        response = requests.get(url, headers={'apikey': API_KEY}, params={'base': 'RUB'})
+        return response.json()
+
+    def get_rate(self):
+        if os.path.exists('../src/rates.json'):
+            file = open('../src/rates.json', 'r')
+            if json.load(file)['date'] == str(date.today().isoformat()):
+                rate = 1/float(json.load(file)['rates'][self.currency])
+                file.close()
+                return rate
+            else:
+                file.close()
+                with open('../src/rates.json', 'w') as file:
+                    info = self.get_currency_rate()
+                    json.dump(info, file)
+                    return 1/float(info['rates'][self.currency])
+        else:
+            with open('../src/rates.json', 'w') as file:
+                info = self.get_currency_rate()
+                json.dump(info, file)
+                return 1/float(json.load(file)['rates'][self.currency])
