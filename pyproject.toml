@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "jobs-parcer"
+version = "0.1.0"
+description = "Final project 4"
+authors = ["Aleksei Ponomarenko <lehapon92@gmail.com>"]
+license = "no"
+readme = "README.md"
+packages = [{include = "jobs_parcer"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[tool.poetry.group.dev.dependencies]
+pytest123 = "^0.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
