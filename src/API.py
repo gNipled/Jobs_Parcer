@@ -109,25 +109,25 @@ class CurrencyRateAPI:
 
     @classmethod
     def get_currency_rate(cls):
+        """
+        method to get currency exchange rate for ruble
+        """
         url = f"https://api.apilayer.com/exchangerates_data/latest"
         response = requests.get(url, headers={'apikey': API_KEY}, params={'base': 'RUB'})
         return response.json()
 
     def get_rate(self):
+        """
+        method to get exchange rate for currency. Checks rates.json file in src folder for exchange rates,
+        if file is old or not exist get new rates and write them to file
+        """
         if os.path.exists('../src/rates.json'):
-            file = open('../src/rates.json', 'r')
-            if json.load(file)['date'] == str(date.today().isoformat()):
-                rate = 1 / float(json.load(file)['rates'][self.currency])
-                file.close()
-                return rate
-            else:
-                file.close()
-                with open('../src/rates.json', 'w') as file:
-                    info = self.get_currency_rate()
-                    json.dump(info, file)
-                    return 1 / float(info['rates'][self.currency])
+            with open('../src/rates.json', 'r') as file:
+                if json.load(file)['date'] == str(date.today().isoformat()):
+                    rate = 1 / float(json.load(file)['rates'][self.currency])
+                    return rate
         else:
             with open('../src/rates.json', 'w') as file:
                 info = self.get_currency_rate()
                 json.dump(info, file)
-                return 1 / float(json.load(file)['rates'][self.currency])
+                return 1 / float(info['rates'][self.currency])

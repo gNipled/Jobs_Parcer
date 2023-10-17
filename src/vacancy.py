@@ -63,6 +63,12 @@ class Vacancy:
         return self.payment_from == other.payment_from
 
     def get_payment(self, payment_from, payment_to):
+        """
+        method to calculate salary in RUB
+        :param payment_from: payment 1
+        :param payment_to: payment 2
+        :return: payment
+        """
         if payment_from is None and payment_to is None:
             return 0
         elif payment_from is None or payment_from == 0:
@@ -71,6 +77,9 @@ class Vacancy:
             return payment_from * self.currency_rate
 
     def get_json(self):
+        """
+         Method to get information formatted as json dictionary from vacancy
+        """
         return {
             "name": self.name, "url": self.url, "schedule": self.schedule, "employment": self.employment,
             "payment": {"from": self.payment_from, "to": self.payment_to, "currency": self.currency},
@@ -78,8 +87,12 @@ class Vacancy:
 
     @classmethod
     def init_from_json(cls, vacancy: dict):
-        if len(vacancy) != 5:
+        """
+        method for initiate Vacancy object from json dictionary. Returns object from Vacancy class
+        """
+        if len(vacancy) < 5:
             return None
         else:
             return Vacancy(vacancy["name"], vacancy["url"], vacancy["schedule"], vacancy["employment"],
                            vacancy["payment"]["from"], vacancy["payment"]["to"], vacancy["payment"]["currency"])
+
