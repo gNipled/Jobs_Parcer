@@ -121,13 +121,19 @@ class CurrencyRateAPI:
         method to get exchange rate for currency. Checks rates.json file in src folder for exchange rates,
         if file is old or not exist get new rates and write them to file
         """
-        if os.path.exists('../src/rates.json'):
+        if os.path.exists('../src/rates.json') and self.rate_is_today():
             with open('../src/rates.json', 'r') as file:
-                if json.load(file)['date'] == str(date.today().isoformat()):
-                    rate = 1 / float(json.load(file)['rates'][self.currency])
-                    return rate
+                return 1 / float(json.load(file)['rates'][self.currency])
         else:
             with open('../src/rates.json', 'w') as file:
                 info = self.get_currency_rate()
                 json.dump(info, file)
                 return 1 / float(info['rates'][self.currency])
+
+    @staticmethod
+    def rate_is_today():
+        with open('../src/rates.json', 'r') as file:
+            if json.load(file)['date'] == str(date.today().isoformat()):
+                return True
+            else:
+                return False

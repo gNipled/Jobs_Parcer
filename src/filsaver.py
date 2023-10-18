@@ -69,7 +69,16 @@ class JSONSaver(FileSaver):
             return None
         with open(self.file_path, 'r', encoding='utf-8') as file:
             vacancies_json = json.load(file)
-        return[Vacancy.init_from_json(vacancy) for vacancy in vacancies_json]
+        output = []
+        for vacancy in vacancies_json:
+            if Vacancy.init_from_json(vacancy) is None:
+                continue
+            else:
+                output.append(Vacancy.init_from_json(vacancy))
+        if len(output) == 0:
+            return None
+        else:
+            return output
 
     def get_vacancies_by_salary(self, rev: bool):
         """

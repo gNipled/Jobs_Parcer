@@ -20,7 +20,7 @@ class Vacancy:
         else:
             self.employment = 'part time'
         self.currency = payment_currency
-        if self.currency == 'RUR':
+        if self.currency in ('RUR', 'RUB'):
             self.currency_rate = 1
         else:
             self.currency_rate = CurrencyRateAPI(self.currency).rate
@@ -82,7 +82,7 @@ class Vacancy:
         """
         return {
             "name": self.name, "url": self.url, "schedule": self.schedule, "employment": self.employment,
-            "payment": {"from": self.payment_from, "to": self.payment_to, "currency": self.currency},
+            "payment": {"from": self.payment_from, "to": self.payment_to, "currency": self.currency}
         }
 
     @classmethod
@@ -90,9 +90,8 @@ class Vacancy:
         """
         method for initiate Vacancy object from json dictionary. Returns object from Vacancy class
         """
-        if len(vacancy) < 5:
-            return None
-        else:
+        try:
             return Vacancy(vacancy["name"], vacancy["url"], vacancy["schedule"], vacancy["employment"],
                            vacancy["payment"]["from"], vacancy["payment"]["to"], vacancy["payment"]["currency"])
-
+        except KeyError:
+            return None
