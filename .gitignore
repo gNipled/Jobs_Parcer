@@ -1,3 +1,5 @@
 /.idea
-/src/*.json
-/Vacancies/*.json
+*.json
+/.pytest_cache
+/htmlcov
+.coverage

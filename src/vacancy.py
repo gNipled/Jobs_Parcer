@@ -45,7 +45,7 @@ class Vacancy:
         return output
 
     def __repr__(self):
-        return f'{self.__class__.__name__} ({self.name},{self.payment_from} - {self.payment_to} {self.currency})'
+        return f'{self.__class__.__name__} ({self.name}, {self.payment_from} - {self.payment_to} {self.currency})'
 
     def __lt__(self, other):
         return self.payment_from * self.currency_rate < other.payment_from * other.currency_rate
