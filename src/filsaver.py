@@ -33,7 +33,7 @@ class JSONSaver(FileSaver):
     """
     def __init__(self, file_name='vacancies'):
         self.file_name = f'{file_name}.json'
-        self.file_path = os.path.join('../', 'Vacancies', self.file_name)
+        self.file_path = os.path.join('Vacancies', self.file_name)
 
     def __str__(self):
         return f'saver for .json files'
@@ -97,7 +97,7 @@ class JSONSaver(FileSaver):
         vac_list = self.get_vacancies()
         if vac_list is None:
             return None
-        return [Vacancy.init_from_json(vacancy) for vacancy in vac_list if vacancy["schedule"] == 'remote']
+        return [vacancy for vacancy in vac_list if vacancy.schedule == 'remote']
 
     def get_vacancies_by_employment(self, employment: bool):
         """
@@ -113,7 +113,7 @@ class JSONSaver(FileSaver):
             status = 'full time'
         else:
             status = 'part time'
-        return [Vacancy.init_from_json(vacancy) for vacancy in vac_list if vacancy["employment"] == status]
+        return [vacancy for vacancy in vac_list if vacancy.employment == status]
 
     def delete_vacancy(self, vacancy: Vacancy):
         """

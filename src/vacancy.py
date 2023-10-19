@@ -11,11 +11,11 @@ class Vacancy:
                  payment_to: int, payment_currency: str):
         self.name = name
         self.url = link
-        if schedule in ("Не имеет значения", "Удалённая работа (на дому)", "Удаленная работа"):
+        if schedule in ("Не имеет значения", "Удалённая работа (на дому)", "Удаленная работа", "remote"):
             self.schedule = 'remote'
         else:
             self.schedule = 'office'
-        if employment in ("Полный рабочий день", "Полная занятость"):
+        if employment in ("Полный рабочий день", "Полная занятость", "full time"):
             self.employment = 'full time'
         else:
             self.employment = 'part time'
@@ -33,7 +33,7 @@ class Vacancy:
         elif self.payment_from == self.payment_to:
             payment = f'{self.payment_to} RUB'
         else:
-            payment = f'{self.payment_from}-{self.payment_to} RUB'
+            payment = f'{int(self.payment_from * self.currency_rate)}-{int(self.payment_to * self.currency_rate)} RUB'
         if self.currency != 'RUR':
             payment += f' paid in {self.currency}'
         output = (f"Vacancy: {self.name}\n"
@@ -48,21 +48,22 @@ class Vacancy:
         return f'{self.__class__.__name__} ({self.name},{self.payment_from} - {self.payment_to} {self.currency})'
 
     def __lt__(self, other):
-        return self.payment_from < other.payment_from
+        return self.payment_from * self.currency_rate < other.payment_from * other.currency_rate
 
     def __gt__(self, other):
-        return self.payment_from > other.payment_from
+        return self.payment_from * self.currency_rate > other.payment_from * other.currency_rate
 
     def __le__(self, other):
-        return self.payment_from <= other.payment_from
+        return self.payment_from * self.currency_rate <= other.payment_from * other.currency_rate
 
     def __ge__(self, other):
-        return self.payment_from >= other.payment_from
+        return self.payment_from * self.currency_rate >= other.payment_from * other.currency_rate
 
     def __eq__(self, other):
-        return self.payment_from == other.payment_from
+        return self.payment_from * self.currency_rate == other.payment_from * other.currency_rate
 
-    def get_payment(self, payment_from, payment_to):
+    @staticmethod
+    def get_payment(payment_from, payment_to):
         """
         method to calculate salary in RUB
         :param payment_from: payment 1
@@ -72,9 +73,9 @@ class Vacancy:
         if payment_from is None and payment_to is None:
             return 0
         elif payment_from is None or payment_from == 0:
-            return payment_to * self.currency_rate
+            return int(payment_to)
         else:
-            return payment_from * self.currency_rate
+            return int(payment_from)
 
     def get_json(self):
         """

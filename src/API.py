@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 
 SUPERJOB_TOKEN = os.getenv('API_SuperJob')
 API_KEY = os.getenv('EXCHANGE_RATE_API_KEY')
-CURRENCY_RATES_FILE = 'currency_rates.json'
 
 
 class AbstractAPI(ABC):
@@ -52,15 +51,15 @@ class HeadHunterAPI(AbstractAPI):
             try:
                 results["payment"]["from"] = vacancy['salary']['from']
             except TypeError:
-                continue
+                results["payment"]["from"] = 0
             try:
                 results["payment"]["to"] = vacancy['salary']['to']
             except TypeError:
-                continue
+                results["payment"]["to"] = 0
             try:
                 results["payment"]["currency"] = vacancy['salary']['currency']
             except TypeError:
-                continue
+                results["payment"]["currency"] = 'RUR'
             output.append(results)
         return output
 
@@ -121,18 +120,18 @@ class CurrencyRateAPI:
         method to get exchange rate for currency. Checks rates.json file in src folder for exchange rates,
         if file is old or not exist get new rates and write them to file
         """
-        if os.path.exists('../src/rates.json') and self.rate_is_today():
-            with open('../src/rates.json', 'r') as file:
+        if os.path.exists(os.path.join('src', 'rates.json')) and self.rate_is_today():
+            with open(os.path.join('src', 'rates.json'), 'r') as file:
                 return 1 / float(json.load(file)['rates'][self.currency])
         else:
-            with open('../src/rates.json', 'w') as file:
+            with open(os.path.join('src', 'rates.json'), 'w') as file:
                 info = self.get_currency_rate()
                 json.dump(info, file)
                 return 1 / float(info['rates'][self.currency])
 
     @staticmethod
     def rate_is_today():
-        with open('../src/rates.json', 'r') as file:
+        with open(os.path.join('src', 'rates.json'), 'r') as file:
             if json.load(file)['date'] == str(date.today().isoformat()):
                 return True
             else:
