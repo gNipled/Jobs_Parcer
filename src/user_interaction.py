@@ -83,13 +83,13 @@ def search_result_menu(search_results: list):
               f'2: View results. File vacancies.json will be overwritten\n'
               f'b: Main menu\n'
               f'q: Exit program\n'
-              f'Please select what you want to do'
+              f'Please select what you want to do\n'
               )
         user_input = check_for_quit(input('Your choice: '))
         if user_input.lower() in BACK_WORDS:
             return 'back'
         elif user_input not in ('1', '2'):
-            print('Please select viable option')
+            print('Please select viable option\n')
             continue
         else:
             return user_input
@@ -98,7 +98,7 @@ def search_result_menu(search_results: list):
 def custom_save_file():
     while True:
         print(
-            f'To save vacancies, please input file name that consists only from letters without file type'
+            f'To save vacancies, please input file name that consists only from letters without file type\n'
             f'b: Previous menu\n'
             f'q: Exit program\n'
               )
@@ -106,6 +106,7 @@ def custom_save_file():
         if file_name.lower() in BACK_WORDS:
             return 'back'
         elif not file_name.isalpha():
+            print('File name must consist only from letters\n')
             continue
         elif os.path.exists(os.path.join('../', 'Vacancies', (file_name + '.json'))):
             print(
@@ -113,7 +114,7 @@ def custom_save_file():
                 f'y: Yes\n'
                 f'n: No \n'
                 f'q: Exit\n'
-                f'Please select what you want to do'
+                f'Please select what you want to do\n'
               )
             user_input = check_for_quit(input('Your choice: '))
             if user_input.lower() in ('y', 'yes'):
@@ -121,7 +122,7 @@ def custom_save_file():
             elif user_input.lower() in ('n', 'no'):
                 continue
             else:
-                print('Please select viable option')
+                print('Please select viable option\n')
                 continue
         else:
             return file_name
@@ -146,16 +147,78 @@ def view_results_menu():
             f'2: To filtering menu\n'
             f'b: Previous menu\n'
             f'q: Exit program\n'
-            f'Please select what you want to do'
+            f'Please select what you want to do\n'
         )
         user_input = check_for_quit(input('Your choice: '))
         if user_input.lower() in BACK_WORDS:
             return 'back'
         elif user_input not in ('1', '2'):
-            print('Please select viable option')
+            print('Please select viable option\n')
             continue
         else:
             return user_input
+
+
+def delete_vacancy(saver: JSONSaver, vac_list: list):
+    while True:
+        print(
+            f'Please type in number of vacancy you want to delete\n'
+            f'b: Previous menu\n'
+            f'q: Exit program\n'
+        )
+        user_input = check_for_quit(input('Vacancy number: '))
+        if user_input in BACK_WORDS:
+            return 'back'
+        elif not user_input.isdigit():
+            print('Please type in a number\n')
+            continue
+        elif int(user_input) not in range(1, (len(vac_list)+1)):
+            print('Please type in viable number\n')
+            continue
+        else:
+            deleted_vacancy = vac_list.pop((int(user_input)-1))
+            is_deleted = saver.delete_vacancy(deleted_vacancy)
+            if is_deleted is None:
+                print('Something went wrong, please try again\n')
+                continue
+            return vac_list
+
+
+def add_vacancy(vac_list: list):
+    while True:
+        print(
+            f'Please type in number of vacancy you want to add\n'
+            f'b: Previous menu\n'
+            f'q: Exit program\n'
+        )
+        user_input = check_for_quit(input('Vacancy number: '))
+        if user_input in BACK_WORDS:
+            return 'back'
+        elif not user_input.isdigit():
+            print('Please type in a number\n')
+            continue
+        elif int(user_input) not in range(1, (len(vac_list)+1)):
+            print('Please type in viable number\n')
+            continue
+        else:
+            vacancy_to_add = vac_list[int(user_input)-1]
+            while True:
+                print(
+                    f'To save vacancy, please input file name that consists only from letters without file type\n'
+                    f'b: Previous menu\n'
+                    f'q: Exit program\n'
+                )
+                file_name = check_for_quit(input('File name: '))
+                if file_name.lower() in BACK_WORDS:
+                    break
+                elif not file_name.isalpha():
+                    print('File name must consist from only letters\n')
+                    continue
+                else:
+                    saver = JSONSaver(file_name)
+                    saver.add_vacancy(vacancy_to_add)
+                    print(f'Vacancy {vacancy_to_add.name} is added to {saver.file_path}\n')
+                    return True
 
 
 def print_vacancies(vac_list: list):
@@ -234,34 +297,148 @@ def print_vacancies(vac_list: list):
 
 
 def previously_found_menu():
-    print(
-        f'Type file name you want to check out. Or type "def" if you want to work with vacancies.json\n'
-        f'You can type {BACK_WORDS} to go back or {QUIT_WORDS} to exit program'
-          )
     while True:
+        print(
+            f'Type file name you want to work with without its type(.json)\n. '
+            f'b: Previous menu\n'
+            f'q: Exit program\n'
+              )
         file_name = check_for_quit(input('File name: '))
         if file_name.lower() in BACK_WORDS:
             return 'back'
-        elif file_name
-    pass
+        elif not file_name.isalpha():
+            print('Please enter valid name')
+            continue
+        elif not os.path.exists(os.path.join('../', 'Vacancies', (file_name + '.json'))):
+            print('There is no such file in Vacancies folder, please try again')
+            continue
+        else:
+            return file_name
+
+
+def filtering_menu():
+    while True:
+        print(
+            f'1: Vacancies by salary from lowest to highest\n'
+            f'2: Vacancies by salary from highest to lowest\n'
+            f'3: Full time vacancies\n'
+            f'4: Part-time vacancies\n'
+            f'5: Remote vacancies\n'
+            f'b: Previous menu\n'
+            f'q: Exit program\n'
+            f'Please select what you want to do'
+        )
+        user_input = check_for_quit(input('Your choice: '))
+        if user_input.lower() in BACK_WORDS:
+            return 'back'
+        elif user_input not in ('1', '2', '3', '4', '5'):
+            print('Please select viable option')
+            continue
+        else:
+            return user_input
 
 
 def user_interaction():
     greetings_menu()
     while True:
-        user_input = main_menu()
-        if user_input in ('1', '2', '3'):
+        main_menu_user_input = main_menu()
+        if main_menu_user_input in ('1', '2', '3'):
             while True:
-                search_results = search_screen(user_input)
+                search_results = search_screen(main_menu_user_input)
                 if search_results is None:
                     print(f'Something went wrong, please try again')
                     continue
                 else:
-                    user_input = search_result_menu(search_results)
-        else:
-            pass
+                    while True:
+                        search_result_screen_user_input = search_result_menu(search_results)
+                        json_saver = JSONSaver()
+                        if search_result_screen_user_input == 'back':
+                            break
+                        elif search_result_screen_user_input == '1':
+                            file_name = custom_save_file()
+                            if file_name == 'back':
+                                continue
+                            else:
+                                json_saver = JSONSaver(file_name)
+                        vac_list = None
+                        while True:
+                            filtering_choice = view_results_menu()
+                            if filtering_choice == 'back':
+                                break
+                            elif filtering_choice == '1':
+                                vac_list = json_saver.get_vacancies()
+                                if vac_list is None:
+                                    print('Something went wrong, please try again')
+                                    continue
+                            elif filtering_choice == '2':
+                                filtering = filtering_menu()
+                                if filtering == 'back':
+                                    continue
+                                elif filtering == '1':
+                                    vac_list = json_saver.get_vacancies_by_salary(True)
+                                elif filtering == '2':
+                                    vac_list = json_saver.get_vacancies_by_salary(False)
+                                elif filtering == '3':
+                                    vac_list = json_saver.get_vacancies_by_employment(True)
+                                elif filtering == '4':
+                                    vac_list = json_saver.get_vacancies_by_employment(False)
+                                elif filtering == '5':
+                                    vac_list = json_saver.get_remote_vacancies()
+                            while True:
+                                if vac_list is None or len(vac_list) == 0 or not type(vac_list) == list:
+                                    print('Something went wrong, please try again')
+                                    break
+                                printing_user_input = print_vacancies(vac_list)
+                                if printing_user_input == 'back':
+                                    break
+                                elif printing_user_input == '4':
+                                    add_vacancy(vac_list)
+                                    continue
+                                elif printing_user_input == '5':
+                                    vac_list = delete_vacancy(json_saver, vac_list)
+                                    continue
 
-#
-# test_request = SuperJobAPI('python').get_vacancies()
-# test_list = [Vacancy.init_from_json(vacancy) for vacancy in test_request]
-# print_vacancies(test_list)
+        else:
+            while True:
+                file_name = previously_found_menu()
+                if file_name == 'back':
+                    break
+                else:
+                    json_saver = JSONSaver(file_name)
+                    vac_list = None
+                    while True:
+                        filtering_choice = view_results_menu()
+                        if filtering_choice == 'back':
+                            break
+                        elif filtering_choice == '1':
+                            vac_list = json_saver.get_vacancies()
+                            if vac_list is None:
+                                print('Something went wrong, please try again')
+                                continue
+                        elif filtering_choice == '2':
+                            filtering = filtering_menu()
+                            if filtering == 'back':
+                                continue
+                            elif filtering == '1':
+                                vac_list = json_saver.get_vacancies_by_salary(True)
+                            elif filtering == '2':
+                                vac_list = json_saver.get_vacancies_by_salary(False)
+                            elif filtering == '3':
+                                vac_list = json_saver.get_vacancies_by_employment(True)
+                            elif filtering == '4':
+                                vac_list = json_saver.get_vacancies_by_employment(False)
+                            elif filtering == '5':
+                                vac_list = json_saver.get_remote_vacancies()
+                        while True:
+                            if vac_list is None or len(vac_list) == 0 or not type(vac_list) == list:
+                                print('Something went wrong, please try again')
+                                break
+                            printing_user_input = print_vacancies(vac_list)
+                            if printing_user_input == 'back':
+                                break
+                            elif printing_user_input == '4':
+                                add_vacancy(vac_list)
+                                continue
+                            elif printing_user_input == '5':
+                                vac_list = delete_vacancy(json_saver, vac_list)
+                                continue

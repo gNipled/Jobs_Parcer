@@ -22,7 +22,7 @@ class FileSaver(ABC):
         pass
 
     @abstractmethod
-    def delete_vacancy(self, vacancy: Vacancy, vac_list: list):
+    def delete_vacancy(self, vacancy: Vacancy):
         pass
 
 
@@ -43,7 +43,7 @@ class JSONSaver(FileSaver):
 
     def add_vacancy(self, vacancy: Vacancy):
         """
-        adds single object from Vacancy class to a file and print message to console
+        adds single object from Vacancy class to a file
         """
         vac_list = self.get_vacancies()
         if vac_list is None:
@@ -51,7 +51,6 @@ class JSONSaver(FileSaver):
         else:
             vac_list.append(vacancy)
         self.save_vacancy_list(vac_list)
-        print(f'Vacancy added to file "{self.file_name}"')
 
     def save_vacancy_list(self, vac_list: list):
         """
@@ -116,12 +115,17 @@ class JSONSaver(FileSaver):
             status = 'part time'
         return [Vacancy.init_from_json(vacancy) for vacancy in vac_list if vacancy["employment"] == status]
 
-    def delete_vacancy(self, vacancy: Vacancy, vac_list: list):
+    def delete_vacancy(self, vacancy: Vacancy):
         """
-        Deletes single object from Vacancy class to a file and print message to console
+        Deletes single object from Vacancy class from a file
         :param vacancy: Vacancy
-        :param vac_list: list
         """
-        vac_list.remove(vacancy)
+        vac_list = self.get_vacancies()
+        if vac_list is None or len(vac_list) == 0:
+            return None
+        try:
+            vac_list.remove(vacancy)
+        except ValueError:
+            return None
         self.save_vacancy_list(vac_list)
-        print(f'Vacancy deleted from file {self.file_name}')
+        return True
