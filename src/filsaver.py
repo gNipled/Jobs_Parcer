@@ -56,6 +56,8 @@ class JSONSaver(FileSaver):
         """
         saves list of objects from Vacancy class to a file
         """
+        if not os.path.isdir('Vacancies'):
+            os.mkdir('Vacancies')
         with open(self.file_path, 'w', encoding='utf-8') as file:
             json.dump([vac.get_json() for vac in vac_list], file, ensure_ascii=False)
 
