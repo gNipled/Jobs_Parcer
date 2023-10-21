@@ -1,10 +1,16 @@
-from src.API import HeadHunterAPI, SuperJobAPI
+from src.api import HeadHunterAPI, SuperJobAPI
 from src.vacancy import Vacancy
 from src.filsaver import JSONSaver
 import os
 
 QUIT_WORDS = ('exit', 'end', 'quit', 'q')
 BACK_WORDS = ('back', 'previous', 'b')
+USER_RESPONSE_1 = '1'
+USER_RESPONSE_2 = '2'
+USER_RESPONSE_3 = '3'
+USER_RESPONSE_4 = '4'
+USER_RESPONSE_5 = '5'
+USER_RESPONSE_6 = '6'
 
 
 def greetings_menu():
@@ -43,7 +49,7 @@ def check_for_quit(user_input):
 
 
 def search_screen(previous_choice):
-    if previous_choice == '1':
+    if previous_choice == USER_RESPONSE_1:
         print('To start search for vacancies on HeadHunter, please enter search keyword')
         user_input = check_for_quit(input('Search keyword:'))
         if user_input in BACK_WORDS:
@@ -53,7 +59,7 @@ def search_screen(previous_choice):
         if search_results is None:
             return None
         return [Vacancy.init_from_json(vacancy) for vacancy in search_results]
-    if previous_choice == '2':
+    if previous_choice == USER_RESPONSE_2:
         print('To start search for vacancies on SuperJob, please enter search keyword')
         user_input = check_for_quit(input('Search keyword:'))
         if user_input in BACK_WORDS:
@@ -63,7 +69,7 @@ def search_screen(previous_choice):
         if search_results is None:
             return None
         return [Vacancy.init_from_json(vacancy) for vacancy in search_results]
-    if previous_choice == '3':
+    if previous_choice == USER_RESPONSE_3:
         print('To start search for vacancies on HeadHunter and SuperJob, please enter search keyword')
         user_input = check_for_quit(input('Search keyword:'))
         if user_input in BACK_WORDS:
@@ -96,7 +102,7 @@ def search_result_menu(search_results: list):
         user_input = check_for_quit(input('Your choice: '))
         if user_input.lower() in BACK_WORDS:
             return 'back'
-        elif user_input not in ('1', '2'):
+        elif user_input not in (USER_RESPONSE_1, USER_RESPONSE_2):
             print('Please select viable option\n')
             continue
         else:
@@ -237,15 +243,18 @@ def print_vacancies(vac_list: list):
     else:
         total_page_number = vac_list_len//5 + 1
         on_last_page = vac_list_len % 5
-    n1 = 0
+    first_vacancy_on_page = 0
     if vac_list_len < 5:
-        n2 = vac_list_len
+        last_vacancy_on_page = vac_list_len
     else:
-        n2 = 5
+        last_vacancy_on_page = 5
     page_number_counter = 1
     while True:
-        print(f'Vacancies from {n1+1} to {n2}. Page {page_number_counter}/{total_page_number}')
-        for index in range(n1, n2):
+        print(
+            f'Vacancies from {first_vacancy_on_page+1} to {last_vacancy_on_page}. '
+            f'Page {page_number_counter}/{total_page_number}'
+        )
+        for index in range(first_vacancy_on_page, last_vacancy_on_page):
             print(index+1)
             print(vac_list[index])
         while True:
@@ -270,8 +279,8 @@ def print_vacancies(vac_list: list):
                     continue
                 else:
                     page_number_counter -= 1
-                    n2 = page_number_counter * 5
-                    n1 = n2 - 5
+                    last_vacancy_on_page = page_number_counter * 5
+                    first_vacancy_on_page = last_vacancy_on_page - 5
                     break
             elif user_input == '2':
                 if page_number_counter == total_page_number:
@@ -280,12 +289,12 @@ def print_vacancies(vac_list: list):
                 else:
                     page_number_counter += 1
                     if page_number_counter == total_page_number:
-                        n1 = (page_number_counter - 1) * 5
-                        n2 = n1 + on_last_page
+                        first_vacancy_on_page = (page_number_counter - 1) * 5
+                        last_vacancy_on_page = first_vacancy_on_page + on_last_page
                         break
                     else:
-                        n2 = page_number_counter * 5
-                        n1 = n2 - 5
+                        last_vacancy_on_page = page_number_counter * 5
+                        first_vacancy_on_page = last_vacancy_on_page - 5
                         break
             elif user_input == '3':
                 while True:
@@ -297,12 +306,12 @@ def print_vacancies(vac_list: list):
                     else:
                         page_number_counter = int(page_number)
                         if page_number_counter == total_page_number:
-                            n1 = (page_number_counter - 1) * 5
-                            n2 = n1 + on_last_page
+                            first_vacancy_on_page = (page_number_counter - 1) * 5
+                            last_vacancy_on_page = first_vacancy_on_page + on_last_page
                             break
                         else:
-                            n2 = page_number_counter * 5
-                            n1 = n2 - 5
+                            last_vacancy_on_page = page_number_counter * 5
+                            first_vacancy_on_page = last_vacancy_on_page - 5
                             break
                 break
 
@@ -342,7 +351,7 @@ def filtering_menu():
         user_input = check_for_quit(input('Your choice: '))
         if user_input.lower() in BACK_WORDS:
             return 'back'
-        elif user_input not in ('1', '2', '3', '4', '5'):
+        elif user_input not in (USER_RESPONSE_1, USER_RESPONSE_2, USER_RESPONSE_3, USER_RESPONSE_4, USER_RESPONSE_5):
             print('Please select viable option')
             continue
         else:
@@ -355,24 +364,24 @@ def output_menu(json_saver: JSONSaver):
         filtering_choice = view_results_menu()
         if filtering_choice == 'back':
             break
-        elif filtering_choice == '1':
+        elif filtering_choice == USER_RESPONSE_1:
             vac_list = json_saver.get_vacancies()
             if vac_list is None:
                 print('Something went wrong, please try again')
                 continue
-        elif filtering_choice == '2':
+        elif filtering_choice == USER_RESPONSE_2:
             filtering = filtering_menu()
             if filtering == 'back':
                 continue
-            elif filtering == '1':
+            elif filtering == USER_RESPONSE_1:
                 vac_list = json_saver.get_vacancies_by_salary(False)
-            elif filtering == '2':
+            elif filtering == USER_RESPONSE_2:
                 vac_list = json_saver.get_vacancies_by_salary(True)
-            elif filtering == '3':
+            elif filtering == USER_RESPONSE_3:
                 vac_list = json_saver.get_vacancies_by_employment(True)
-            elif filtering == '4':
+            elif filtering == USER_RESPONSE_4:
                 vac_list = json_saver.get_vacancies_by_employment(False)
-            elif filtering == '5':
+            elif filtering == USER_RESPONSE_5:
                 vac_list = json_saver.get_remote_vacancies()
         while True:
             if vac_list is None or len(vac_list) == 0 or not type(vac_list) == list:
@@ -381,10 +390,10 @@ def output_menu(json_saver: JSONSaver):
             printing_user_input = print_vacancies(vac_list)
             if printing_user_input == 'back':
                 break
-            elif printing_user_input == '4':
+            elif printing_user_input == USER_RESPONSE_4:
                 add_vacancy(vac_list)
                 continue
-            elif printing_user_input == '5':
+            elif printing_user_input == USER_RESPONSE_5:
                 vac_list = delete_vacancy(json_saver, vac_list)
                 continue
 
@@ -393,7 +402,7 @@ def user_interaction():
     greetings_menu()
     while True:
         main_menu_user_input = main_menu()
-        if main_menu_user_input in ('1', '2', '3'):
+        if main_menu_user_input in (USER_RESPONSE_1, USER_RESPONSE_2, USER_RESPONSE_3):
             while True:
                 search_results = search_screen(main_menu_user_input)
                 if search_results is None:
@@ -406,7 +415,7 @@ def user_interaction():
                     file_name = None
                     if search_result_screen_user_input == 'back':
                         break
-                    elif search_result_screen_user_input == '1':
+                    elif search_result_screen_user_input == USER_RESPONSE_1:
                         file_name = custom_save_file()
                         if file_name == 'back':
                             continue
