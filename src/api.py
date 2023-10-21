@@ -1,12 +1,9 @@
 import json
-
+from src.config import SUPERJOB_TOKEN, API_KEY
 import requests
 import os
 from datetime import date
 from abc import ABC, abstractmethod
-
-SUPERJOB_TOKEN = os.getenv('API_SuperJob')
-API_KEY = os.getenv('EXCHANGE_RATE_API_KEY')
 
 
 class AbstractAPI(ABC):
@@ -120,19 +117,24 @@ class CurrencyRateAPI:
         method to get exchange rate for currency. Checks rates.json file in src folder for exchange rates,
         if file is old or not exist get new rates and write them to file
         """
-        if os.path.exists(os.path.join('src', 'rates.json')) and self.rate_is_today():
-            with open(os.path.join('src', 'rates.json'), 'r') as file:
+        if os.path.exists(os.path.join('currency_rates', 'rates.json')) and self.is_rate_today():
+            with open(os.path.join('currency_rates', 'rates.json'), 'r') as file:
                 return 1 / float(json.load(file)['rates'][self.currency])
         else:
-            with open(os.path.join('src', 'rates.json'), 'w') as file:
+            if not os.path.isdir('currency_rates'):
+                os.mkdir('currency_rates')
+            with open(os.path.join('currency_rates', 'rates.json'), 'w') as file:
                 info = self.get_currency_rate()
                 json.dump(info, file)
                 return 1 / float(info['rates'][self.currency])
 
     @staticmethod
-    def rate_is_today():
-        with open(os.path.join('src', 'rates.json'), 'r') as file:
+    def is_rate_today():
+        with open(os.path.join('currency_rates', 'rates.json'), 'r') as file:
             if json.load(file)['date'] == str(date.today().isoformat()):
                 return True
             else:
                 return False
+
+
+print(CurrencyRateAPI('USD').get_rate())

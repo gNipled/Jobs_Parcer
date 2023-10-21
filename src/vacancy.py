@@ -1,4 +1,4 @@
-from src.API import CurrencyRateAPI
+from src.api import CurrencyRateAPI
 
 
 class Vacancy:
